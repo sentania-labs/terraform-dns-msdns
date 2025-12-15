@@ -3,7 +3,7 @@ output "fqdn" {
 }
 
 output "addresses" {
-   value = join(",", dns_a_record_set.this.addresses)
+  value = join(",", dns_a_record_set.this.addresses)
 }
 
 output "ptr_records" {
