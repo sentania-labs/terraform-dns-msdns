@@ -7,7 +7,7 @@ resource "dns_a_record_set" "this" {
 resource "dns_ptr_record" "this" {
   for_each = {
     for r in local.reverse_records :
-    "${r.ip}" => r
+    r.ip => r
     if r.zone != null
   }
 
