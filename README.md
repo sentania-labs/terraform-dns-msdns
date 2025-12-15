@@ -130,3 +130,48 @@ Ensure:
 ## License
 
 MIT
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.0 |
+| <a name="requirement_dns"></a> [dns](#requirement\_dns) | ~> 3.4 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_dns"></a> [dns](#provider\_dns) | ~> 3.4 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [dns_a_record_set.this](https://registry.terraform.io/providers/hashicorp/dns/latest/docs/resources/a_record_set) | resource |
+| [dns_cname_record.aliases](https://registry.terraform.io/providers/hashicorp/dns/latest/docs/resources/cname_record) | resource |
+| [dns_ptr_record.this](https://registry.terraform.io/providers/hashicorp/dns/latest/docs/resources/ptr_record) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_addresses"></a> [addresses](#input\_addresses) | IPv4 addresses for this host | `list(string)` | n/a | yes |
+| <a name="input_cnames"></a> [cnames](#input\_cnames) | cnames to asscoiate with this record | `list(string)` | `[]` | no |
+| <a name="input_hostname"></a> [hostname](#input\_hostname) | Short hostname, e.g. storage.int | `string` | n/a | yes |
+| <a name="input_ttl"></a> [ttl](#input\_ttl) | n/a | `number` | `300` | no |
+| <a name="input_zone"></a> [zone](#input\_zone) | Forward DNS zone, e.g. sentania.net | `string` | n/a | yes |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_addresses"></a> [addresses](#output\_addresses) | n/a |
+| <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | n/a |
+| <a name="output_ptr_records"></a> [ptr\_records](#output\_ptr\_records) | n/a |
+<!-- END_TF_DOCS -->
