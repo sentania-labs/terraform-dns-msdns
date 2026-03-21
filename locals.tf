@@ -15,8 +15,13 @@ locals {
     for o in local.ip_objects : {
       ip = o.ip
 
-      # PTR name is always last two octets
-      ptr_name = "${o.o4}.${o.o3}"
+      # PTR name within the reverse zone:
+      # - 10.x.x.x zone consumes 1 octet, so name needs 3 (o2.o3.o4)
+      # - 192.168.x.x and 172.16-31.x.x zones consume 2 octets, so name needs 2 (o3.o4)
+      ptr_name = (
+        o.o1 == 10 ? "${o.o4}.${o.o3}.${o.o2}" :
+        "${o.o4}.${o.o3}"
+      )
 
       zone = (
         o.o1 == 10 ? "10.in-addr.arpa." :

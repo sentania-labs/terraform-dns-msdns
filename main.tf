@@ -17,7 +17,7 @@ resource "dns_ptr_record" "this" {
   ttl  = var.ttl
 }
 resource "dns_cname_record" "aliases" {
-  for_each = var.cnames != null ? toset(var.cnames) : toset([])
+  for_each = toset(var.cnames)
 
   zone  = var.zone
   name  = each.value

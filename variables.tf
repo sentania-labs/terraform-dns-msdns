@@ -1,11 +1,21 @@
 variable "hostname" {
   type        = string
-  description = "Short hostname, e.g. storage.int"
+  description = "Short hostname without zone suffix or trailing dot (e.g. \"storage\")"
+
+  validation {
+    condition     = !endswith(var.hostname, ".")
+    error_message = "hostname must not end with a trailing dot."
+  }
 }
 
 variable "zone" {
   type        = string
-  description = "Forward DNS zone, e.g. sentania.net"
+  description = "Forward DNS zone, must end with a trailing dot (e.g. \"example.com.\")"
+
+  validation {
+    condition     = endswith(var.zone, ".")
+    error_message = "zone must end with a trailing dot (e.g. \"example.com.\")."
+  }
 }
 
 variable "addresses" {
@@ -15,23 +25,20 @@ variable "addresses" {
   validation {
     condition = alltrue([
       for ip in var.addresses :
-      can(regex(
-        "^([0-9]{1,3}\\.){3}[0-9]{1,3}$",
-        ip
-      ))
+      can(cidrnetmask("${ip}/32"))
     ])
-    error_message = "All addresses must be valid IPv4 strings."
+    error_message = "All addresses must be valid IPv4 strings (each octet 0-255)."
   }
 }
 
-
 variable "ttl" {
-  type    = number
-  default = 300
+  type        = number
+  description = "DNS record TTL in seconds"
+  default     = 300
 }
 
 variable "cnames" {
   type        = list(string)
-  description = "cnames to asscoiate with this record"
+  description = "CNAME aliases to associate with this record (all within the same zone)"
   default     = []
 }
