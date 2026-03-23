@@ -162,16 +162,16 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_addresses"></a> [addresses](#input\_addresses) | IPv4 addresses for this host | `list(string)` | n/a | yes |
-| <a name="input_cnames"></a> [cnames](#input\_cnames) | cnames to asscoiate with this record | `list(string)` | `[]` | no |
-| <a name="input_hostname"></a> [hostname](#input\_hostname) | Short hostname, e.g. storage.int | `string` | n/a | yes |
-| <a name="input_ttl"></a> [ttl](#input\_ttl) | n/a | `number` | `300` | no |
-| <a name="input_zone"></a> [zone](#input\_zone) | Forward DNS zone, e.g. sentania.net | `string` | n/a | yes |
+| <a name="input_cnames"></a> [cnames](#input\_cnames) | CNAME aliases to associate with this record (all within the same zone) | `list(string)` | `[]` | no |
+| <a name="input_hostname"></a> [hostname](#input\_hostname) | Short hostname without zone suffix or trailing dot (e.g. "storage") | `string` | n/a | yes |
+| <a name="input_ttl"></a> [ttl](#input\_ttl) | DNS record TTL in seconds | `number` | `300` | no |
+| <a name="input_zone"></a> [zone](#input\_zone) | Forward DNS zone, must end with a trailing dot (e.g. "example.com.") | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_addresses"></a> [addresses](#output\_addresses) | n/a |
-| <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | n/a |
-| <a name="output_ptr_records"></a> [ptr\_records](#output\_ptr\_records) | n/a |
+| <a name="output_addresses"></a> [addresses](#output\_addresses) | List of IPv4 addresses registered for this host |
+| <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | Fully qualified domain name of the A record (hostname + zone) |
+| <a name="output_ptr_records"></a> [ptr\_records](#output\_ptr\_records) | Map of IP address to its PTR record name within the reverse zone |
 <!-- END_TF_DOCS -->
