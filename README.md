@@ -120,6 +120,54 @@ Ensure:
 
 ---
 
+## Pre-Existing Record Detection
+
+This module includes a `check` block that queries DNS during `terraform plan`
+to detect A records that already exist. This helps catch **GSS-TSIG ownership
+conflicts** before `terraform apply` fails with the cryptic error:
+
+```
+unexpected acceptor flag is not set: expecting a token from the acceptor, not in the initiator
+```
+
+### When warnings appear
+
+- **New record (no pre-existing):** No warning. The DNS lookup returns NXDOMAIN
+  and the check is silently skipped.
+- **Record exists with different addresses:** A warning is shown with the
+  existing and requested addresses, plus remediation steps.
+- **Record exists with matching addresses:** No warning. If the record was
+  created by a different Kerberos principal, apply may still fail — see the
+  remediation steps below.
+- **After successful apply:** No warning on subsequent plans (addresses match).
+
+### Why this happens
+
+Microsoft DNS enforces record ownership via Kerberos (GSS-TSIG). Only the
+principal that created a record can update it. When Terraform's service account
+tries to manage a record created by a different principal, the DNS server
+rejects the update.
+
+### How to fix it
+
+Before running `terraform apply`, transfer ownership using one of:
+
+1. **Delete and recreate** -- remove the record (e.g. `dnscmd /RecordDelete`)
+   and let Terraform create it with the correct ownership
+2. **Update the ACL** -- use `Set-DnsServerResourceRecord` in PowerShell to
+   grant the Terraform service account write permission
+3. **AD delegation** -- grant the service account broader write permission on
+   the DNS zone's AD objects
+
+### Scope
+
+Only the **A record** is checked. PTR and CNAME records cannot be checked
+individually because Terraform `check` blocks do not support `for_each`. If the
+A record check warns, related PTR/CNAME records likely have the same ownership
+issue.
+
+---
+
 ## Limitations
 
 - IPv6 not currently supported
@@ -136,7 +184,7 @@ MIT
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_dns"></a> [dns](#requirement\_dns) | ~> 3.4 |
 
 ## Providers
