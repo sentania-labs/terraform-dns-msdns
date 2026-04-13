@@ -134,9 +134,12 @@ unexpected acceptor flag is not set: expecting a token from the acceptor, not in
 
 - **New record (no pre-existing):** No warning. The DNS lookup returns NXDOMAIN
   and the check is silently skipped.
-- **Record already exists (first plan):** A warning is shown with the existing
-  addresses and remediation steps.
-- **After successful apply:** No warning on subsequent plans.
+- **Record exists with different addresses:** A warning is shown with the
+  existing and requested addresses, plus remediation steps.
+- **Record exists with matching addresses:** No warning. If the record was
+  created by a different Kerberos principal, apply may still fail — see the
+  remediation steps below.
+- **After successful apply:** No warning on subsequent plans (addresses match).
 
 ### Why this happens
 
