@@ -31,9 +31,10 @@ For a single logical host:
 
 ```hcl
 module "storage" {
-  source = "./hostrecord"
+  source  = "sentania-labs/msdns/dns"
+  version = "~> 0.2"
 
-  hostname  = "storage.int"
+  hostname  = "storage"
   zone      = "example.com."
   ttl       = 3600
 
@@ -45,8 +46,8 @@ module "storage" {
   ]
 
   cnames = [
-    "media.int",
-    "backup.int"
+    "media",
+    "backup"
   ]
 }
 ```
@@ -56,8 +57,8 @@ This results in:
 - `storage.example.com` → multiple A records
 - PTR records in `16.172.in-addr.arpa.`
 - CNAMEs:
-  - `media.example.com`
-  - `backup.example.com`
+  - `media.example.com` → `storage.example.com`
+  - `backup.example.com` → `storage.example.com`
 
 ---
 
@@ -168,6 +169,29 @@ issue.
 
 ---
 
+## Known Issues
+
+### hashicorp/dns provider 3.6.0 breaks GSS-TSIG with Windows AD DNS
+
+Provider version 3.6.0 (released 2026-05-12) upgraded its `bodgit/tsig`
+dependency from 1.2.2 to 1.3.0. The new version refactored GSSAPI into
+a wrapper library (`bodgit/gssapi`) that enforces strict RFC 4121 MIC
+token flag validation. Windows AD DNS servers don't always set the
+`SentByAcceptor` flag in their response tokens, causing all DNS writes
+to fail with:
+
+```
+unexpected acceptor flag is not set: expecting a token from the acceptor,
+not in the initiator
+```
+
+DNS reads (plan/refresh) still work — only writes (apply) are affected.
+
+This module constrains the provider to `>= 3.4, < 3.6` until the
+upstream fix lands. Tracked in:
+- [bodgit/tsig #178](https://github.com/bodgit/tsig/issues/178)
+- [bodgit/tsig #54](https://github.com/bodgit/tsig/issues/54)
+
 ## Limitations
 
 - IPv6 not currently supported
@@ -185,13 +209,13 @@ MIT
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
-| <a name="requirement_dns"></a> [dns](#requirement\_dns) | ~> 3.4 |
+| <a name="requirement_dns"></a> [dns](#requirement\_dns) | >= 3.4, < 3.6 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_dns"></a> [dns](#provider\_dns) | ~> 3.4 |
+| <a name="provider_dns"></a> [dns](#provider\_dns) | >= 3.4, < 3.6 |
 
 ## Modules
 

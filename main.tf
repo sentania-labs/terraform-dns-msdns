@@ -4,6 +4,7 @@ resource "dns_a_record_set" "this" {
   addresses = var.addresses
   ttl       = var.ttl
 }
+
 resource "dns_ptr_record" "this" {
   for_each = {
     for r in local.reverse_records :
@@ -16,6 +17,7 @@ resource "dns_ptr_record" "this" {
   ptr  = "${var.hostname}.${var.zone}"
   ttl  = var.ttl
 }
+
 resource "dns_cname_record" "aliases" {
   for_each = toset(coalesce(var.cnames, []))
 
