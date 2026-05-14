@@ -1,6 +1,4 @@
 locals {
-
-
   ip_objects = [
     for ip in var.addresses : {
       ip = ip
