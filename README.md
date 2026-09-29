@@ -215,7 +215,7 @@ MIT
 
 | Name | Version |
 |------|---------|
-| <a name="provider_dns"></a> [dns](#provider\_dns) | >= 3.4, < 3.6 |
+| <a name="provider_dns"></a> [dns](#provider\_dns) | 3.5.0 |
 
 ## Modules
 
