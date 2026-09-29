@@ -12,7 +12,7 @@ run "ptr_10_network_single" {
   }
 
   assert {
-    condition     = outputs.ptr_records["10.5.3.7"] == "7.3.5.10.in-addr.arpa."
+    condition     = module.dns.ptr_records["10.5.3.7"] == "7.3.5.10.in-addr.arpa."
     error_message = "10.x.x.x should produce 7.3.5.10.in-addr.arpa."
   }
 }
@@ -26,17 +26,17 @@ run "ptr_10_network_multi" {
   }
 
   assert {
-    condition     = outputs.ptr_records["10.0.0.1"] == "1.0.0.10.in-addr.arpa."
+    condition     = module.dns.ptr_records["10.0.0.1"] == "1.0.0.10.in-addr.arpa."
     error_message = "10.0.0.1 should produce 1.0.0.10.in-addr.arpa."
   }
 
   assert {
-    condition     = outputs.ptr_records["10.255.255.254"] == "254.255.255.10.in-addr.arpa."
+    condition     = module.dns.ptr_records["10.255.255.254"] == "254.255.255.10.in-addr.arpa."
     error_message = "10.255.255.254 should produce 254.255.255.10.in-addr.arpa."
   }
 
   assert {
-    condition     = length(outputs.ptr_records) == 2
+    condition     = length(module.dns.ptr_records) == 2
     error_message = "Two 10.x.x.x addresses should yield two PTR records."
   }
 }
@@ -50,7 +50,7 @@ run "ptr_192168_single" {
   }
 
   assert {
-    condition     = outputs.ptr_records["192.168.1.50"] == "50.1.168.192.in-addr.arpa."
+    condition     = module.dns.ptr_records["192.168.1.50"] == "50.1.168.192.in-addr.arpa."
     error_message = "192.168.1.50 should produce 50.1.168.192.in-addr.arpa."
   }
 }
@@ -64,12 +64,12 @@ run "ptr_192168_multi" {
   }
 
   assert {
-    condition     = outputs.ptr_records["192.168.0.1"] == "1.0.168.192.in-addr.arpa."
+    condition     = module.dns.ptr_records["192.168.0.1"] == "1.0.168.192.in-addr.arpa."
     error_message = "192.168.0.1 should produce 1.0.168.192.in-addr.arpa."
   }
 
   assert {
-    condition     = length(outputs.ptr_records) == 2
+    condition     = length(module.dns.ptr_records) == 2
     error_message = "Two 192.168.x.x addresses should yield two PTR records."
   }
 }
@@ -83,7 +83,7 @@ run "ptr_17216_base" {
   }
 
   assert {
-    condition     = outputs.ptr_records["172.16.0.10"] == "10.0.16.172.in-addr.arpa."
+    condition     = module.dns.ptr_records["172.16.0.10"] == "10.0.16.172.in-addr.arpa."
     error_message = "172.16.0.10 should produce 10.0.16.172.in-addr.arpa."
   }
 }
@@ -97,7 +97,7 @@ run "ptr_17231_edge" {
   }
 
   assert {
-    condition     = outputs.ptr_records["172.31.255.1"] == "1.255.31.172.in-addr.arpa."
+    condition     = module.dns.ptr_records["172.31.255.1"] == "1.255.31.172.in-addr.arpa."
     error_message = "172.31.255.1 should produce 1.255.31.172.in-addr.arpa."
   }
 }
@@ -111,7 +111,7 @@ run "ptr_172_mid_range" {
   }
 
   assert {
-    condition     = outputs.ptr_records["172.20.10.5"] == "5.10.20.172.in-addr.arpa."
+    condition     = module.dns.ptr_records["172.20.10.5"] == "5.10.20.172.in-addr.arpa."
     error_message = "172.20.10.5 should produce 5.10.20.172.in-addr.arpa."
   }
 }
@@ -125,7 +125,7 @@ run "ptr_17215_not_rfc1918" {
   }
 
   assert {
-    condition     = length(outputs.ptr_records) == 0
+    condition     = length(module.dns.ptr_records) == 0
     error_message = "172.15.x.x is outside RFC1918 172.16/12; no PTR record expected."
   }
 }
@@ -139,7 +139,7 @@ run "ptr_17232_not_rfc1918" {
   }
 
   assert {
-    condition     = length(outputs.ptr_records) == 0
+    condition     = length(module.dns.ptr_records) == 0
     error_message = "172.32.x.x is outside RFC1918 172.16/12; no PTR record expected."
   }
 }
@@ -153,7 +153,7 @@ run "ptr_public_no_ptr" {
   }
 
   assert {
-    condition     = length(outputs.ptr_records) == 0
+    condition     = length(module.dns.ptr_records) == 0
     error_message = "Public IP 8.8.8.8 should produce no PTR record."
   }
 }
@@ -167,22 +167,22 @@ run "ptr_mixed_private_public" {
   }
 
   assert {
-    condition     = outputs.ptr_records["10.1.1.1"] == "1.1.1.10.in-addr.arpa."
+    condition     = module.dns.ptr_records["10.1.1.1"] == "1.1.1.10.in-addr.arpa."
     error_message = "10.1.1.1 should produce PTR."
   }
 
   assert {
-    condition     = outputs.ptr_records["192.168.10.20"] == "20.10.168.192.in-addr.arpa."
+    condition     = module.dns.ptr_records["192.168.10.20"] == "20.10.168.192.in-addr.arpa."
     error_message = "192.168.10.20 should produce PTR."
   }
 
   assert {
-    condition     = contains(keys(outputs.ptr_records), "8.8.4.4") == false
-    error_message = "8.8.4.4 is public; should not be in outputs.ptr_records."
+    condition     = contains(keys(module.dns.ptr_records), "8.8.4.4") == false
+    error_message = "8.8.4.4 is public; should not be in module.dns.ptr_records."
   }
 
   assert {
-    condition     = length(outputs.ptr_records) == 2
+    condition     = length(module.dns.ptr_records) == 2
     error_message = "Mixed private+public: only 2 PTR records expected."
   }
 }
