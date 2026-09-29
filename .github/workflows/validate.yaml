@@ -88,7 +88,8 @@ jobs:
       - name: Terraform Test
         if: always()
         id: test
-        run: terraform test -test-directory tests/ -no-color
+        working-directory: tests
+        run: terraform test -no-color
 
       - name: Update PR
         if: always()
