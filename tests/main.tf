@@ -1,3 +1,16 @@
+# Integration test harness for the DNS module.
+# Run from tests/ directory: terraform init && terraform test
+
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    dns = {
+      source  = "hashicorp/dns"
+      version = ">= 3.4, < 3.6"
+    }
+  }
+}
+
 variable "hostname" {
   type    = string
   default = "web"
