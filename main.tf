@@ -7,9 +7,8 @@ resource "dns_a_record_set" "this" {
 
 resource "dns_ptr_record" "this" {
   for_each = {
-    for r in local.reverse_records :
-    r.ip => r
-    if r.zone != null
+    for i, r in local.reverse_records :
+    i => r if r.zone != null
   }
 
   zone = each.value.zone

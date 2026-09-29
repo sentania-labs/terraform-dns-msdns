@@ -84,7 +84,12 @@ jobs:
         if: always()
         id: fmt 
         run: terraform fmt -check --recursive
-    
+
+      - name: Terraform Test
+        if: always()
+        id: test
+        run: terraform test -test-directory tests/ -no-color
+
       - name: Update PR
         if: always()
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
@@ -94,7 +99,8 @@ jobs:
             #### Terraform Format: \`${{ steps.fmt.outcome }}\` 
             #### Terraform Initialization: \`${{ steps.init.outcome }}\`
             #### Terraform Validation: \`${{ steps.validate.outcome }}\`
-  
+            #### Terraform Tests: \`${{ steps.test.outcome }}\`
+
             *Pushed by: @${{ github.actor }}*`;
   
             github.rest.issues.createComment({
