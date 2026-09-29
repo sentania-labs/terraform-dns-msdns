@@ -207,15 +207,15 @@ MIT
 ## Requirements
 
 | Name | Version |
-| ---- | ------- |
+|------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
 | <a name="requirement_dns"></a> [dns](#requirement\_dns) | >= 3.4, < 3.6 |
 
 ## Providers
 
 | Name | Version |
-| ---- | ------- |
-| <a name="provider_dns"></a> [dns](#provider\_dns) | 3.5.0 |
+|------|---------|
+| <a name="provider_dns"></a> [dns](#provider\_dns) | >= 3.4, < 3.6 |
 
 ## Modules
 
@@ -224,7 +224,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-| ---- | ---- |
+|------|------|
 | [dns_a_record_set.this](https://registry.terraform.io/providers/hashicorp/dns/latest/docs/resources/a_record_set) | resource |
 | [dns_cname_record.aliases](https://registry.terraform.io/providers/hashicorp/dns/latest/docs/resources/cname_record) | resource |
 | [dns_ptr_record.this](https://registry.terraform.io/providers/hashicorp/dns/latest/docs/resources/ptr_record) | resource |
@@ -232,7 +232,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-| ---- | ----------- | ---- | ------- | :------: |
+|------|-------------|------|---------|:--------:|
 | <a name="input_addresses"></a> [addresses](#input\_addresses) | IPv4 addresses for this host | `list(string)` | n/a | yes |
 | <a name="input_cnames"></a> [cnames](#input\_cnames) | CNAME aliases to associate with this record (all within the same zone) | `list(string)` | `[]` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | Short hostname without zone suffix or trailing dot (e.g. "storage") | `string` | n/a | yes |
@@ -242,7 +242,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-| ---- | ----------- |
+|------|-------------|
 | <a name="output_addresses"></a> [addresses](#output\_addresses) | List of IPv4 addresses registered for this host |
 | <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | Fully qualified domain name of the A record (hostname + zone) |
 | <a name="output_ptr_records"></a> [ptr\_records](#output\_ptr\_records) | Map of IP address to its PTR record name within the reverse zone |
