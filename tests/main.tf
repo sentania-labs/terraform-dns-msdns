@@ -1,19 +1,3 @@
-# Root config for DNS module integration tests.
-# Run from tests/ directory: terraform init && terraform test
-# or from repo root: terraform test -test-directory tests/
-
-terraform {
-  required_version = ">= 1.5.0"
-  required_providers {
-    dns = {
-      source  = "hashicorp/dns"
-      version = ">= 3.4, < 3.6"
-    }
-  }
-}
-
-# These variables are overridden by variables {} in the .tftest.hcl files,
-# which then propagate to the module via var.
 variable "hostname" {
   type    = string
   default = "web"
@@ -40,8 +24,7 @@ variable "cnames" {
 }
 
 module "dns" {
-  source = "../"
-
+  source    = "../"
   hostname  = var.hostname
   zone      = var.zone
   addresses = var.addresses
