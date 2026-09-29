@@ -7,13 +7,11 @@ resource "dns_a_record_set" "this" {
 
 resource "dns_ptr_record" "this" {
   for_each = {
-    for r in local.reverse_records :
-    r.ip => r
-    if r.zone != null
+    for idx, addr in var.addresses : idx => addr if try(local.ptr_zones[addr], null) != null
   }
 
-  zone = each.value.zone
-  name = each.value.ptr_name
+  zone = local.ptr_zones[each.value]
+  name = local.ptr_names[each.value]
   ptr  = "${var.hostname}.${var.zone}"
   ttl  = var.ttl
 }

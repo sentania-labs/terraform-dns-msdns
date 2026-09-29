@@ -12,6 +12,6 @@ output "ptr_records" {
   description = "Map of IP address to its PTR record name within the reverse zone"
   value = {
     for k, v in dns_ptr_record.this :
-    k => "${v.name}.${v.zone}"
+    var.addresses[k] => "${v.name}.${v.zone}"
   }
 }
