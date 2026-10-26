@@ -286,3 +286,33 @@ run "explicit_reverse_zone_names" {
     error_message = "A null entry in reverse_zones should skip that address."
   }
 }
+
+run "reverse_zones_length_mismatch_fails" {
+  command = plan
+  module {
+    source = "../"
+  }
+  variables {
+    hostname      = "web"
+    zone          = "example.com."
+    addresses     = ["10.5.3.7", "10.5.3.8"]
+    reverse_zones = ["10.in-addr.arpa."]
+  }
+
+  expect_failures = [dns_a_record_set.this]
+}
+
+run "reverse_zone_not_suffix_of_address_fails" {
+  command = plan
+  module {
+    source = "../"
+  }
+  variables {
+    hostname      = "web"
+    zone          = "example.com."
+    addresses     = ["10.5.3.7"]
+    reverse_zones = ["168.192.in-addr.arpa."]
+  }
+
+  expect_failures = [dns_ptr_record.this]
+}

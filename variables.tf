@@ -43,11 +43,10 @@ variable "reverse_zones" {
   default     = null
 
   validation {
-    condition = var.reverse_zones == null ? true : (
-      length(var.reverse_zones) == length(var.addresses) &&
-      alltrue([for z in var.reverse_zones : z == null ? true : endswith(z, ".in-addr.arpa.")])
-    )
-    error_message = "reverse_zones must have one entry per address, each null or a zone ending in \".in-addr.arpa.\"."
+    condition = var.reverse_zones == null ? true : alltrue([
+      for z in var.reverse_zones : z == null ? true : endswith(z, ".in-addr.arpa.")
+    ])
+    error_message = "Each reverse_zones entry must be null or a zone ending in \".in-addr.arpa.\"."
   }
 }
 
