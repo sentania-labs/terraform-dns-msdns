@@ -316,3 +316,20 @@ run "reverse_zone_not_suffix_of_address_fails" {
 
   expect_failures = [dns_ptr_record.this]
 }
+
+# reverse_zones omitted: the length precondition must not evaluate length(null)
+# (Terraform < 1.12 does not short-circuit || and &&).
+run "reverse_zones_omitted" {
+  command = plan
+  variables {
+    hostname      = "web"
+    zone          = "example.com."
+    addresses     = ["10.5.3.7"]
+    reverse_zones = null
+  }
+
+  assert {
+    condition     = module.dns.ptr_records["10.5.3.7"] == "7.3.5.10.in-addr.arpa."
+    error_message = "Omitting reverse_zones should derive the zone from the address."
+  }
+}

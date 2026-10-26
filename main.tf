@@ -6,7 +6,7 @@ resource "dns_a_record_set" "this" {
 
   lifecycle {
     precondition {
-      condition     = var.reverse_zones == null || length(var.reverse_zones) == length(var.addresses)
+      condition     = var.reverse_zones == null ? true : length(var.reverse_zones) == length(var.addresses)
       error_message = "reverse_zones must have exactly one entry per address (${length(var.addresses)} addresses given)."
     }
   }
