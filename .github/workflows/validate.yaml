@@ -85,6 +85,11 @@ jobs:
         id: fmt 
         run: terraform fmt -check --recursive
 
+      - name: Terraform Init (tests)
+        if: always()
+        working-directory: tests
+        run: terraform init -backend=false
+
       - name: Terraform Test
         if: always()
         id: test
