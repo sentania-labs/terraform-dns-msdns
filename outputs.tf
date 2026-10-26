@@ -12,6 +12,11 @@ output "ptr_records" {
   description = "Map of IP address to its PTR record name within the reverse zone"
   value = {
     for k, v in dns_ptr_record.this :
-    var.addresses[k] => "${v.name}.${v.zone}"
+    var.addresses[tonumber(k)] => "${v.name}.${v.zone}"
   }
+}
+
+output "ptr_names" {
+  description = "Map of position in addresses to the PTR record name within its reverse zone; keys are known at plan time"
+  value       = { for k, v in dns_ptr_record.this : k => "${v.name}.${v.zone}" }
 }

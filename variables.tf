@@ -31,6 +31,25 @@ variable "addresses" {
   }
 }
 
+variable "reverse_zones" {
+  type        = list(string)
+  description = <<-EOT
+    Reverse zone for each entry of addresses, matched by position (e.g. "10.in-addr.arpa."),
+    each ending with a trailing dot. Use null for an address that should get no PTR record.
+    Required when addresses are not known until apply (for example an address taken from
+    another resource), because the set of PTR records must be known at plan time. When
+    null, the zone is derived from the RFC1918 range of each address, which needs known addresses.
+  EOT
+  default     = null
+
+  validation {
+    condition = var.reverse_zones == null ? true : alltrue([
+      for z in var.reverse_zones : z == null ? true : endswith(z, ".in-addr.arpa.")
+    ])
+    error_message = "Each reverse_zones entry must be null or a zone ending in \".in-addr.arpa.\"."
+  }
+}
+
 variable "ttl" {
   type        = number
   description = "DNS record TTL in seconds"

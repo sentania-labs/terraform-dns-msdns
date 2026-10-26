@@ -26,6 +26,26 @@ variable "addresses" {
   default = ["10.5.3.7"]
 }
 
+variable "reverse_zones" {
+  type    = list(string)
+  default = null
+}
+
+variable "computed_address" {
+  type        = bool
+  description = "Take the address from a resource attribute that is unknown until apply"
+  default     = false
+}
+
+# terraform_data.output is unknown at plan time while the input is.
+resource "terraform_data" "computed_ip" {
+  input = timestamp()
+}
+
+locals {
+  addresses = var.computed_address ? [terraform_data.computed_ip.output] : var.addresses
+}
+
 variable "ttl" {
   type    = number
   default = 300
@@ -37,10 +57,11 @@ variable "cnames" {
 }
 
 module "dns" {
-  source    = "../"
-  hostname  = var.hostname
-  zone      = var.zone
-  addresses = var.addresses
-  ttl       = var.ttl
-  cnames    = var.cnames
+  source        = "../"
+  hostname      = var.hostname
+  zone          = var.zone
+  addresses     = local.addresses
+  reverse_zones = var.reverse_zones
+  ttl           = var.ttl
+  cnames        = var.cnames
 }
