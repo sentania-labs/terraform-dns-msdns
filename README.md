@@ -69,6 +69,7 @@ This results in:
 | `hostname` | `string` | yes | Short hostname (no zone suffix) |
 | `zone` | `string` | yes | Forward DNS zone (must end with `.`) |
 | `addresses` | `list(string)` | yes | IPv4 addresses |
+| `reverse_zones` | `list(string)` | no | Reverse zone per address, by position; `null` entry = no PTR (default: derived from RFC1918 range) |
 | `ttl` | `number` | no | Record TTL (default: 300) |
 | `cnames` | `list(string)` | no | Optional aliases |
 
@@ -84,15 +85,55 @@ PTR records are generated automatically:
 | `192.168.x.x` | `168.192.in-addr.arpa.` |
 | `172.16–31.x.x` | `<second-octet>.172.in-addr.arpa.` |
 
-PTR **names** are always:
-```
-<last-octet>.<third-octet>
-```
+PTR **names** are the reversed address relative to its reverse zone
+(`<o4>.<o3>.<o2>` in `10.in-addr.arpa.`, `<o4>.<o3>` in the 192.168 and 172.16/12 zones).
 
 Example:
 ```
 172.27.8.11 → 11.8.27.172.in-addr.arpa.
 ```
+
+### Addresses that are only known after apply
+
+PTR records are keyed by position in `addresses`, so Terraform needs to know
+*which* addresses get a PTR record at plan time. When an address comes from
+another resource (unknown until apply), the zone can't be derived from it, so
+pass `reverse_zones` with one entry per address (`null` for no PTR):
+
+```hcl
+module "vm" {
+  source = "sentania-labs/msdns/dns"
+
+  hostname      = "vm01"
+  zone          = "example.com."
+  addresses     = [vsphere_virtual_machine.vm.default_ip_address]
+  reverse_zones = ["10.in-addr.arpa."]
+}
+```
+
+Without `reverse_zones`, addresses must be known at plan time.
+
+---
+
+## Upgrading from 0.6.x
+
+0.7 keys `dns_ptr_record.this` by position in `addresses` (`"0"`, `"1"`, ...)
+instead of by IP address. Upgrading therefore plans a **destroy and recreate of
+every PTR record** (a brief gap in reverse resolution, and the record is
+re-owned by the Terraform principal). That is safe to accept as a one-time
+change. To avoid it, add one `moved` block per address in the calling
+configuration (a module cannot write these for caller-specific IPs):
+
+```hcl
+moved {
+  from = module.storage.dns_ptr_record.this["172.16.3.54"]
+  to   = module.storage.dns_ptr_record.this["0"]
+}
+```
+
+`"0"` is the address's position in `addresses`; skip addresses outside
+RFC1918, which never had a PTR record. Reordering `addresses` later moves
+the records the same way, so append new addresses at the end.
 
 ---
 
@@ -236,6 +277,7 @@ No modules.
 | <a name="input_addresses"></a> [addresses](#input\_addresses) | IPv4 addresses for this host | `list(string)` | n/a | yes |
 | <a name="input_cnames"></a> [cnames](#input\_cnames) | CNAME aliases to associate with this record (all within the same zone) | `list(string)` | `[]` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | Short hostname without zone suffix or trailing dot (e.g. "storage") | `string` | n/a | yes |
+| <a name="input_reverse_zones"></a> [reverse\_zones](#input\_reverse\_zones) | Reverse zone for each entry of addresses, matched by position; null entry = no PTR. Needed when addresses are unknown until apply. | `list(string)` | `null` | no |
 | <a name="input_ttl"></a> [ttl](#input\_ttl) | DNS record TTL in seconds | `number` | `300` | no |
 | <a name="input_zone"></a> [zone](#input\_zone) | Forward DNS zone, must end with a trailing dot (e.g. "example.com.") | `string` | n/a | yes |
 
@@ -245,5 +287,6 @@ No modules.
 |------|-------------|
 | <a name="output_addresses"></a> [addresses](#output\_addresses) | List of IPv4 addresses registered for this host |
 | <a name="output_fqdn"></a> [fqdn](#output\_fqdn) | Fully qualified domain name of the A record (hostname + zone) |
+| <a name="output_ptr_names"></a> [ptr\_names](#output\_ptr\_names) | Map of position in addresses to the PTR record name within its reverse zone; keys are known at plan time |
 | <a name="output_ptr_records"></a> [ptr\_records](#output\_ptr\_records) | Map of IP address to its PTR record name within the reverse zone |
 <!-- END_TF_DOCS -->

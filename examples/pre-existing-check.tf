@@ -1,14 +1,14 @@
 check "a_record_ownership" {
   data "dns_a_record_set" "a_lookup" {
-    host = "${var.hostname}.${var.zone}"
+    host = "${local.hostname}.${local.zone}"
   }
 
   assert {
-    condition     = toset(data.dns_a_record_set.a_lookup.addrs) == toset(var.addresses)
+    condition     = toset(data.dns_a_record_set.a_lookup.addrs) == toset(local.addresses)
     error_message = <<-EOT
-      A record for '${var.hostname}.${var.zone}' already exists in DNS
+      A record for '${local.hostname}.${local.zone}' already exists in DNS
       with address(es): ${join(", ", data.dns_a_record_set.a_lookup.addrs)},
-      which differ from the requested addresses: ${join(", ", var.addresses)}.
+      which differ from the requested addresses: ${join(", ", local.addresses)}.
 
       Microsoft DNS uses GSS-TSIG (Kerberos) record ownership. If this record
       was created by a different principal, Terraform will fail with:

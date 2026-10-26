@@ -6,12 +6,10 @@ resource "dns_a_record_set" "this" {
 }
 
 resource "dns_ptr_record" "this" {
-  for_each = {
-    for idx, addr in var.addresses : idx => addr if try(local.ptr_zones[addr], null) != null
-  }
+  for_each = local.ptr_records
 
-  zone = local.ptr_zones[each.value]
-  name = local.ptr_names[each.value]
+  zone = each.value.zone
+  name = each.value.name
   ptr  = "${var.hostname}.${var.zone}"
   ttl  = var.ttl
 }

@@ -233,3 +233,56 @@ run "a_record_custom_zone" {
     error_message = "FQDN should include the zone domain."
   }
 }
+
+# Addresses that come from another resource are unknown at plan time. With
+# reverse_zones given, the PTR key set depends only on the list, so the first
+# plan must succeed.
+run "computed_address_first_plan" {
+  command = plan
+  variables {
+    hostname         = "web"
+    zone             = "example.com."
+    computed_address = true
+    reverse_zones    = ["10.in-addr.arpa."]
+  }
+
+  assert {
+    condition     = length(keys(module.dns.ptr_names)) == 1
+    error_message = "A computed address with an explicit reverse zone should plan one PTR record."
+  }
+}
+
+run "computed_address_no_ptr_zone" {
+  command = plan
+  variables {
+    hostname         = "web"
+    zone             = "example.com."
+    computed_address = true
+    reverse_zones    = [null]
+  }
+
+  assert {
+    condition     = length(keys(module.dns.ptr_names)) == 0
+    error_message = "A null reverse zone should plan no PTR record."
+  }
+}
+
+run "explicit_reverse_zone_names" {
+  command = plan
+  variables {
+    hostname      = "web"
+    zone          = "example.com."
+    addresses     = ["172.20.10.5", "8.8.8.8"]
+    reverse_zones = ["20.172.in-addr.arpa.", null]
+  }
+
+  assert {
+    condition     = module.dns.ptr_records["172.20.10.5"] == "5.10.20.172.in-addr.arpa."
+    error_message = "Explicit zone should give the same PTR name as the derived zone."
+  }
+
+  assert {
+    condition     = length(module.dns.ptr_records) == 1
+    error_message = "A null entry in reverse_zones should skip that address."
+  }
+}

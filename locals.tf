@@ -9,27 +9,30 @@ locals {
     }
   ]
 
-  reverse_records = [
-    for o in local.ip_objects : {
-      ip = o.ip
-
-      # PTR name within the reverse zone:
-      # - 10.x.x.x zone consumes 1 octet, so name needs 3 (o2.o3.o4)
-      # - 192.168.x.x and 172.16-31.x.x zones consume 2 octets, so name needs 2 (o3.o4)
-      ptr_name = o.o1 == 10 ? "${o.o4}.${o.o3}.${o.o2}" : "${o.o4}.${o.o3}"
-
-      zone = o.o1 == 10 ? "10.in-addr.arpa." : o.o1 == 192 && o.o2 == 168 ? "168.192.in-addr.arpa." : o.o1 == 172 && o.o2 >= 16 && o.o2 <= 31 ? "${o.o2}.172.in-addr.arpa." : null
-    }
+  # Reverse zone per address, aligned with var.addresses by position. An
+  # explicit var.reverse_zones is used as given, so the PTR key set depends
+  # only on the caller's list and never on the address values (which may be
+  # unknown at plan time). Without it the zone is derived from RFC1918 ranges,
+  # which requires the addresses to be known at plan time.
+  derived_zones = [
+    for o in local.ip_objects :
+    o.o1 == 10 ? "10.in-addr.arpa." : o.o1 == 192 && o.o2 == 168 ? "168.192.in-addr.arpa." : o.o1 == 172 && o.o2 >= 16 && o.o2 <= 31 ? "${o.o2}.172.in-addr.arpa." : null
   ]
 
-  ptr_records = {
-    for r in local.reverse_records :
-    r.ip => {
-      name = r.ptr_name
-      zone = r.zone
-    } if r.zone != null
-  }
+  reverse_zones = var.reverse_zones != null ? var.reverse_zones : local.derived_zones
 
-  ptr_zones = { for k, v in local.ptr_records : k => v.zone }
-  ptr_names = { for k, v in local.ptr_records : k => v.name }
+  # Full reverse name of each address, e.g. 7.3.5.10.in-addr.arpa.
+  reverse_names = [
+    for o in local.ip_objects : "${o.o4}.${o.o3}.${o.o2}.${o.o1}.in-addr.arpa."
+  ]
+
+  # Keyed by position in var.addresses; only the zone list decides which keys exist.
+  ptr_records = {
+    for idx, zone in local.reverse_zones :
+    idx => {
+      zone = zone
+      # PTR name relative to the zone, e.g. 7.3.5 within 10.in-addr.arpa.
+      name = trimsuffix(local.reverse_names[idx], ".${zone}")
+    } if zone != null
+  }
 }

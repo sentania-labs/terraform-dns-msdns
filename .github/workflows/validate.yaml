@@ -80,6 +80,14 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+      - name: Terraform Validate (examples)
+        if: always()
+        id: validate_examples
+        working-directory: examples
+        run: |
+          terraform init -backend=false
+          terraform validate -no-color
+
       - name: Terraform Fmt 
         if: always()
         id: fmt 
@@ -105,6 +113,7 @@ jobs:
             #### Terraform Format: \`${{ steps.fmt.outcome }}\` 
             #### Terraform Initialization: \`${{ steps.init.outcome }}\`
             #### Terraform Validation: \`${{ steps.validate.outcome }}\`
+            #### Terraform Validation (examples): \`${{ steps.validate_examples.outcome }}\`
             #### Terraform Tests: \`${{ steps.test.outcome }}\`
 
             *Pushed by: @${{ github.actor }}*`;
