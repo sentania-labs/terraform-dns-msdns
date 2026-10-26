@@ -17,8 +17,9 @@ For a single logical host:
   - One hostname
   - One or more IPv4 addresses
 - **PTR records**
-  - Automatically derived from each IPv4 address
-  - Supports:
+  - Automatically derived from each IPv4 address, or placed in zones given
+    explicitly via `reverse_zones`
+  - Derived zones support:
     - `10.0.0.0/8`
     - `172.16.0.0/12`
     - `192.168.0.0/16`
@@ -236,7 +237,7 @@ upstream fix lands. Tracked in:
 ## Limitations
 
 - IPv6 not currently supported
-- Non-RFC1918 reverse zones are ignored
+- Non-RFC1918 addresses get no PTR record unless their zone is given in `reverse_zones`
 
 ---
 
@@ -277,7 +278,7 @@ No modules.
 | <a name="input_addresses"></a> [addresses](#input\_addresses) | IPv4 addresses for this host | `list(string)` | n/a | yes |
 | <a name="input_cnames"></a> [cnames](#input\_cnames) | CNAME aliases to associate with this record (all within the same zone) | `list(string)` | `[]` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | Short hostname without zone suffix or trailing dot (e.g. "storage") | `string` | n/a | yes |
-| <a name="input_reverse_zones"></a> [reverse\_zones](#input\_reverse\_zones) | Reverse zone for each entry of addresses, matched by position; null entry = no PTR. Needed when addresses are unknown until apply. | `list(string)` | `null` | no |
+| <a name="input_reverse_zones"></a> [reverse\_zones](#input\_reverse\_zones) | Reverse zone for each entry of addresses, matched by position (e.g. "10.in-addr.arpa."),<br/>each ending with a trailing dot. Use null for an address that should get no PTR record.<br/>Required when addresses are not known until apply (for example an address taken from<br/>another resource), because the set of PTR records must be known at plan time. When<br/>null, the zone is derived from the RFC1918 range of each address, which needs known addresses. | `list(string)` | `null` | no |
 | <a name="input_ttl"></a> [ttl](#input\_ttl) | DNS record TTL in seconds | `number` | `300` | no |
 | <a name="input_zone"></a> [zone](#input\_zone) | Forward DNS zone, must end with a trailing dot (e.g. "example.com.") | `string` | n/a | yes |
 
