@@ -112,7 +112,9 @@ module "vm" {
 }
 ```
 
-Without `reverse_zones`, addresses must be known at plan time.
+Each entry must be a suffix of that address's reverse name (`10.in-addr.arpa.`
+for `10.5.3.7`); a mismatch fails the plan, or the apply when the address is
+only known then. Without `reverse_zones`, addresses must be known at plan time.
 
 ---
 
@@ -165,8 +167,9 @@ Ensure:
 
 ## Pre-Existing Record Detection
 
-This module includes a `check` block that queries DNS during `terraform plan`
-to detect A records that already exist. This helps catch **GSS-TSIG ownership
+The example in `examples/pre-existing-check.tf` shows a caller-side `check`
+block that queries DNS during `terraform plan` to detect A records that
+already exist. This helps catch **GSS-TSIG ownership
 conflicts** before `terraform apply` fails with the cryptic error:
 
 ```
