@@ -29,10 +29,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }} 
         WITH_V: true
     
-    - name: Generate release    
-      uses: marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1 # latest
+    - name: Generate release
+      uses: sentania-labs/.github/.github/actions/tag-to-release@v1
       with:
-        automatic_release_tag: ${{ steps.tag.outputs.tag }}
-        repo_token: ${{ secrets.REPO_ACCESS_TOKEN }}  
-        prerelease: false
-        draft: false
+        tag: ${{ steps.tag.outputs.tag }}
